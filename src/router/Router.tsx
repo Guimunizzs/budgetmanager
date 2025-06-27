@@ -9,10 +9,11 @@ export function Router() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Layout />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="transactions" element={<Transactions />} />
-      <Route path="budget" element={<Budget />} />
+      <Route path="/" element={<Layout />}>
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="transactions" element={<Transactions />} />
+        <Route path="budget" element={<Budget />} />
+      </Route>
     </Routes>
   );
 }
