@@ -1,5 +1,7 @@
 import axios from "axios";
+import type { Transaction } from "../types/types";
 
+// Configurar instância do Axios
 const api = axios.create({
   baseURL: import.meta.env.VITE_SHEET2API_URL,
   headers: {
@@ -8,74 +10,56 @@ const api = axios.create({
   timeout: 10000, // 10 segundos
 });
 
+// Interceptor para tratar erros globalmente
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response) {
-      // O servidor respondeu com um status diferente de 2xx
-      console.error("Erro na resposta:", error.response.data);
-    } else if (error.request) {
-      // A requisição foi feita, mas não houve resposta
-      console.error("Erro na requisição:", error.request);
-    } else {
-      // Algo aconteceu ao configurar a requisição
-      console.error("Erro:", error.message);
-    }
+    console.error("API Error:", error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
 
-// Crud transactions
-export const getTransactions = async () => {
-  try {
+// CRUD para Transações
+export const transactionService = {
+  // Listar todas as transações
+  getAll: async (): Promise<Transaction[]> => {
     const response = await api.get("/transactions");
     return response.data;
-  } catch (error) {
-    console.error("Erro ao buscar transações:", error);
-    throw error;
-  }
-};
+  },
 
-// nova transação
-export const createTransaction = async (transaction: any) => {
-  try {
-    const response = await api.post("/transactions", transaction);
+  // Criar nova transação
+  create: async (
+    transaction: Omit<Transaction, "id">
+  ): Promise<Transaction> => {
+    const newTransaction = {
+      ...transaction,
+      id: Date.now().toString(),
+    };
+
+    const response = await api.post("/transactions", newTransaction);
     return response.data;
-  } catch (error) {
-    console.error("Erro ao criar transação:", error);
-    throw error;
-  }
-};
+  },
 
-// Atualizar transação
-export const updateTransaction = async (id: string, transaction: any) => {
-  try {
+  // Atualizar transação
+  update: async (
+    id: string,
+    transaction: Partial<Transaction>
+  ): Promise<Transaction> => {
     const response = await api.put(`/transactions/${id}`, transaction);
     return response.data;
-  } catch (error) {
-    console.error("Erro ao atualizar transação:", error);
-    throw error;
-  }
-};
+  },
 
-// Deletar transação
-export const deleteTransaction = async (id: string) => {
-  try {
-    const response = await api.delete(`/transactions/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error("Erro ao deletar transação:", error);
-    throw error;
-  }
-};
+  // Deletar transação
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/transactions/${id}`);
+  },
 
-// buscar transação por ID
-export const getTransactionById = async (id: string) => {
-  try {
+  // Buscar transação por ID
+  getById: async (id: string): Promise<Transaction> => {
     const response = await api.get(`/transactions/${id}`);
     return response.data;
-  } catch (error) {
-    console.error("Erro ao buscar transação por ID:", error);
-    throw error;
-  }
+  },
 };
+
+// Exportar a instância do axios caso precise em outros lugares
+export default api;
