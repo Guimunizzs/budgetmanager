@@ -42,35 +42,13 @@ export const transactionService = {
   // Listar todas as transações
   getAll: async (): Promise<Transaction[]> => {
     try {
-      console.log("🚀 Fazendo request para: /transactions");
-      console.log(
-        "🔗 URL completa:",
-        `${import.meta.env.VITE_SHEET2API_URL}/transactions`
-      );
+      const response = await api.get("/");
 
-      const response = await api.get("/transactions");
-
-      console.log("📋 Raw response data:", response.data);
-      console.log("📋 Response data keys:", Object.keys(response.data || {}));
-
-      // Verificar se é array
+      // Suas validações de array continuam perfeitas aqui...
       if (!Array.isArray(response.data)) {
-        console.warn("⚠️ API não retornou array:", response.data);
-
-        // Se veio em um wrapper, extrair
-        if (response.data && Array.isArray(response.data.data)) {
-          console.log("🔧 Extraindo array de response.data.data");
-          return response.data.data;
-        }
-
+        // ...
         return [];
       }
-
-      console.log(
-        "✅ Sucesso! Retornando array com",
-        response.data.length,
-        "transações"
-      );
       return response.data;
     } catch (error) {
       console.error("💥 Erro ao buscar transações:", error);
@@ -84,10 +62,20 @@ export const transactionService = {
   ): Promise<Transaction> => {
     const newTransaction = {
       ...transaction,
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
     };
 
-    const response = await api.post("/transactions", newTransaction);
+    const response = await api.post("/", newTransaction);
+    return response.data;
+  },
+
+  // Atualizar transação (ainda não implementamos, mas seria assim)
+  update: async (
+    id: string,
+    transaction: Partial<Transaction>
+  ): Promise<Transaction> => {
+    // CORREÇÃO: O ID vai como parâmetro de busca, não no caminho.
+    const response = await api.put(`/?id=${id}`, transaction);
     return response.data;
   },
 
@@ -95,36 +83,20 @@ export const transactionService = {
   delete: async (id: string): Promise<void> => {
     try {
       console.log("🗑️ Tentando deletar transação ID:", id);
-      console.log(
-        "🔗 URL:",
-        `${import.meta.env.VITE_SHEET2API_URL}/transactions/${id}`
-      );
 
-      const response = await api.delete(`/transactions/${id}`);
+      const response = await api.delete(`/?id=${id}`);
 
       console.log("✅ Delete bem-sucedido:", response.status);
     } catch (error) {
-      console.log("💥 Erro ao deletar:", {
-        message: error instanceof Error ? error.message : "Unknown error",
-        status: axios.isAxiosError(error) ? error.response?.status : undefined,
-        statusText: axios.isAxiosError(error)
-          ? error.response?.statusText
-          : undefined,
-      });
-
-      // Se for 404, não é um erro crítico
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        console.log(
-          "⚠️ 404 - Transação não encontrada (pode já ter sido deletada)"
-        );
-        return; // Não rejeitar - tratar como sucesso
-      }
-
-      // Outros erros são críticos
+      console.error("❌ Erro ao deletar transação:", error);
       throw error;
     }
   },
+
+  getById: async (id: string): Promise<Transaction> => {
+    const response = await api.get(`/?id=${id}`);
+    return response.data[0];
+  },
 };
 
-// Exportar a instância do axios caso precise em outros lugares
 export default api;
