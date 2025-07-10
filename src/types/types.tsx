@@ -11,7 +11,7 @@ export interface Transaction {
 
 export interface TransactionFormValues {
   description: string;
-  amount: number;
+  amount: string;
   date: string;
   type: TransactionType;
   category: string;
