@@ -8,3 +8,13 @@ export interface Transaction {
   type: TransactionType;
   category: string;
 }
+
+export interface TransactionFormValues {
+  description: string;
+  amount: string;
+  date: string;
+  type: TransactionType;
+  category: string;
+}
+
+export type CreateTransactionDate = Omit<Transaction, "id">;
