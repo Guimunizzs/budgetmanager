@@ -35,7 +35,7 @@ const TransactionForm = () => {
       };
 
       await addTransaction(transactionData);
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Erro ao adicionar transação:", error);
       alert("Erro ao adicionar transação!");

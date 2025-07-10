@@ -25,6 +25,10 @@ export const useTransactions = () => {
     }
   };
 
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
   // Adicionar transação
   const addTransaction = async (transaction: Omit<Transaction, "id">) => {
     try {
