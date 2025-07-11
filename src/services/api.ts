@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Transaction } from "../types/types";
+import type { Transaction, CreateTransactionDate } from "../types/types";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_SHEET2API_URL,
@@ -72,11 +72,31 @@ export const transactionService = {
   // Atualizar transação (ainda não implementamos, mas seria assim)
   update: async (
     id: string,
-    transaction: Partial<Transaction>
+    // Usar CreateTransactionDate para garantir que todos os campos sejam enviados
+    transaction: CreateTransactionDate
   ): Promise<Transaction> => {
-    // CORREÇÃO: O ID vai como parâmetro de busca, não no caminho.
-    const response = await api.put(`/?id=${id}`, transaction);
-    return response.data;
+    try {
+      console.log(`🌐 PUT /?id=${id}`, transaction);
+      // Sua lógica de usar /?id=${id} está perfeita para a Sheet2API
+      const response = await api.put<Transaction>(`/?id=${id}`, transaction);
+
+      // Sheet2API retorna um array com o item atualizado, então pegamos o primeiro
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        console.log("✅ Update bem-sucedido:", response.data[0]);
+        return response.data[0];
+      }
+
+      // Fallback caso a API retorne algo inesperado
+      console.warn(
+        "⚠️ Update retornou uma resposta inesperada:",
+        response.data
+      );
+      // Retornamos os dados enviados com o ID para manter a consistência no frontend
+      return { ...transaction, id };
+    } catch (error) {
+      console.error(`❌ Erro no update para o ID ${id}:`, error);
+      throw error;
+    }
   },
 
   // Deletar transação
