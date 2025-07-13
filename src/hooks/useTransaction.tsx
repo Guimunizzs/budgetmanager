@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { transactionService } from "../services/api";
-import type { Transaction } from "../types/types";
+import type { Transaction, CreateTransactionDate } from "../types/types";
 
 export const useTransactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -51,6 +51,37 @@ export const useTransactions = () => {
       setError(
         err instanceof Error ? err.message : "Erro ao adicionar transação"
       );
+      throw err;
+    }
+  };
+
+  const updateTransaction = async (
+    id: string,
+    transactionData: CreateTransactionDate
+  ) => {
+    try {
+      console.log(`🔄 Hook: Atualizando transação ID: ${id}`);
+      const updatedTransaction = await transactionService.update(
+        id,
+        transactionData
+      );
+
+      // Atualiza a lista de transações no estado local de forma otimista
+      setTransactions((prev) =>
+        prev.map((t) => (t.id === id ? updatedTransaction : t))
+      );
+      console.log("✅ Hook: Estado local atualizado com a transação editada.");
+
+      // Opcional: Forçar um refetch para garantir a sincronia total com o backend
+      // setTimeout(() => fetchTransactions(true), 1500);
+
+      return updatedTransaction;
+    } catch (err) {
+      console.error("❌ Hook: Erro ao atualizar transação:", err);
+      setError(
+        err instanceof Error ? err.message : "Erro ao atualizar a transação"
+      );
+      // Re-lança o erro para que o componente do formulário possa saber que falhou
       throw err;
     }
   };
@@ -107,6 +138,7 @@ export const useTransactions = () => {
     error,
     isDeleting,
     addTransaction,
+    updateTransaction,
     removeTransaction,
     refetch: fetchTransactions,
   };

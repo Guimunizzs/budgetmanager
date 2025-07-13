@@ -76,14 +76,32 @@ export const transactionService = {
     transaction: CreateTransactionDate
   ): Promise<Transaction> => {
     try {
-      console.log(`🌐 PUT /?id=${id}`, transaction);
-      // Sua lógica de usar /?id=${id} está perfeita para a Sheet2API
-      const response = await api.put<Transaction>(`/?id=${id}`, transaction);
+      const transactionToUpdate: Transaction = {
+        ...transaction,
+        id: id,
+      };
 
-      // Sheet2API retorna um array com o item atualizado, então pegamos o primeiro
+      console.log(`🌐 PUT /?id=${id}`, transactionToUpdate);
+
+      // 2. ENVIA O OBJETO COMPLETO
+      const response = await api.put<Transaction[]>(
+        `/?id=${id}`,
+        transactionToUpdate
+      );
+
+      // 3. Trata a resposta da API
       if (Array.isArray(response.data) && response.data.length > 0) {
-        console.log("✅ Update bem-sucedido:", response.data[0]);
-        return response.data[0];
+        const updatedTransaction = response.data[0];
+        console.log(
+          "✅ Update bem-sucedido, API retornou:",
+          updatedTransaction
+        );
+
+        // Garante que o ID retornado seja o correto
+        if (!updatedTransaction.id) {
+          return { ...updatedTransaction, id: id };
+        }
+        return updatedTransaction;
       }
 
       // Fallback caso a API retorne algo inesperado
@@ -91,8 +109,7 @@ export const transactionService = {
         "⚠️ Update retornou uma resposta inesperada:",
         response.data
       );
-      // Retornamos os dados enviados com o ID para manter a consistência no frontend
-      return { ...transaction, id };
+      return transactionToUpdate; // Retorna o objeto que tentamos enviar
     } catch (error) {
       console.error(`❌ Erro no update para o ID ${id}:`, error);
       throw error;
