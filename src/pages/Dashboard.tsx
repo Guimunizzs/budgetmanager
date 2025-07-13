@@ -396,6 +396,26 @@ const Dashboard = () => {
                           })}
                         </span>
                         <button
+                          onClick={() =>
+                            navigate(`/transactions/edit/${transaction.id}`)
+                          }
+                          className="ml-4 inline-flex items-center p-1 border border-transparent rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                        >
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 5.232z"
+                            />
+                          </svg>
+                        </button>
+                        <button
                           onClick={() => removeTransaction(transaction.id)}
                           className="ml-4 inline-flex items-center p-1 border border-transparent rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
                         >

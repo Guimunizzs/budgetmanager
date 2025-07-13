@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Transaction } from "../types/types";
+import type { Transaction, CreateTransactionDate } from "../types/types";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_SHEET2API_URL,
@@ -72,11 +72,48 @@ export const transactionService = {
   // Atualizar transação (ainda não implementamos, mas seria assim)
   update: async (
     id: string,
-    transaction: Partial<Transaction>
+    // Usar CreateTransactionDate para garantir que todos os campos sejam enviados
+    transaction: CreateTransactionDate
   ): Promise<Transaction> => {
-    // CORREÇÃO: O ID vai como parâmetro de busca, não no caminho.
-    const response = await api.put(`/?id=${id}`, transaction);
-    return response.data;
+    try {
+      const transactionToUpdate: Transaction = {
+        ...transaction,
+        id: id,
+      };
+
+      console.log(`🌐 PUT /?id=${id}`, transactionToUpdate);
+
+      // 2. ENVIA O OBJETO COMPLETO
+      const response = await api.put<Transaction[]>(
+        `/?id=${id}`,
+        transactionToUpdate
+      );
+
+      // 3. Trata a resposta da API
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        const updatedTransaction = response.data[0];
+        console.log(
+          "✅ Update bem-sucedido, API retornou:",
+          updatedTransaction
+        );
+
+        // Garante que o ID retornado seja o correto
+        if (!updatedTransaction.id) {
+          return { ...updatedTransaction, id: id };
+        }
+        return updatedTransaction;
+      }
+
+      // Fallback caso a API retorne algo inesperado
+      console.warn(
+        "⚠️ Update retornou uma resposta inesperada:",
+        response.data
+      );
+      return transactionToUpdate; // Retorna o objeto que tentamos enviar
+    } catch (error) {
+      console.error(`❌ Erro no update para o ID ${id}:`, error);
+      throw error;
+    }
   },
 
   // Deletar transação
