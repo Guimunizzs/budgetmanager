@@ -1,33 +1,13 @@
 import { useTransactions } from "../hooks/useTransaction";
 
-const budgetLimits = {
-  Alimentação: 1000,
-  Transporte: 400,
-  Moradia: 1500,
-  Saúde: 500,
-  Lazer: 300,
-  Compras: 600,
-  Contas: 800,
-  Educação: 200,
-  Outros: 150,
-};
-
-// Componente para a barra de progresso (reutilizável)
 const ProgressBar = ({ value, max }: { value: number; max: number }) => {
   const percentage = max > 0 ? (value / max) * 100 : 0;
-  let barColor = "bg-blue-500"; // Cor padrão
-
-  if (percentage > 90) {
-    barColor = "bg-red-500"; // Alerta
-  } else if (percentage > 75) {
-    barColor = "bg-yellow-500"; // Aviso
-  }
 
   return (
     <div className="w-full bg-gray-200 rounded-full h-2.5">
       <div
-        className={`${barColor} h-2.5 rounded-full transition-all duration-500`}
-        style={{ width: `${Math.min(percentage, 100)}%` }}
+        className="bg-blue-500 h-2.5 rounded-full transition-all duration-500"
+        style={{ width: `${percentage}%` }}
       ></div>
     </div>
   );
@@ -36,7 +16,18 @@ const ProgressBar = ({ value, max }: { value: number; max: number }) => {
 const Budget = () => {
   const { transactions, loading, error } = useTransactions();
 
-  // 2. Calcular os gastos totais por categoria
+  // 1. Calcular os totais gerais
+  const totalIncome = transactions
+    .filter((t) => t.type === "income")
+    .reduce((acc, t) => acc + t.amount, 0);
+
+  const totalExpenses = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((acc, t) => acc + t.amount, 0);
+
+  const balance = totalIncome - totalExpenses;
+
+  // 2. Calcular os gastos totais por categoria (lógica que já tínhamos)
   const expensesByCategory = transactions
     .filter((t) => t.type === "expense")
     .reduce((acc, transaction) => {
@@ -47,6 +38,11 @@ const Budget = () => {
       acc[category] += amount;
       return acc;
     }, {} as Record<string, number>);
+
+  // Ordenar categorias da mais gasta para a menos gasta
+  const sortedCategories = Object.entries(expensesByCategory).sort(
+    ([, a], [, b]) => b - a
+  );
 
   if (loading) {
     return <div>Carregando...</div>;
@@ -59,52 +55,77 @@ const Budget = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Meu Orçamento</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Análise de Gastos</h1>
         <p className="text-sm text-gray-600 mt-1">
-          Acompanhe seus gastos em relação aos seus limites.
+          Veja um resumo geral de suas receitas e despesas.
         </p>
       </div>
 
-      <div className="bg-white shadow rounded-lg">
-        <ul className="divide-y divide-gray-200">
-          {Object.entries(budgetLimits).map(([category, limit]) => {
-            const spent = expensesByCategory[category] || 0;
-            const remaining = limit - spent;
+      {/* 3. Cards com a visão geral */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Card Receitas */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-sm font-medium text-gray-500">
+            Total de Receitas
+          </h3>
+          <p className="mt-2 text-3xl font-bold text-green-600">
+            R${" "}
+            {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          </p>
+        </div>
+        {/* Card Despesas */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-sm font-medium text-gray-500">
+            Total de Despesas
+          </h3>
+          <p className="mt-2 text-3xl font-bold text-red-600">
+            R${" "}
+            {totalExpenses.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+            })}
+          </p>
+        </div>
+        {/* Card Saldo */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-sm font-medium text-gray-500">Saldo Atual</h3>
+          <p
+            className={`mt-2 text-3xl font-bold ${
+              balance >= 0 ? "text-blue-600" : "text-red-600"
+            }`}
+          >
+            R$ {balance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          </p>
+        </div>
+      </div>
 
+      {/* 4. Lista de gastos por categoria */}
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-6 py-4 border-b">
+          <h2 className="text-lg font-semibold text-gray-800">
+            Gastos por Categoria
+          </h2>
+        </div>
+        <ul className="divide-y divide-gray-200">
+          {sortedCategories.map(([category, spent]) => {
+            const percentageOfTotal =
+              totalExpenses > 0 ? (spent / totalExpenses) * 100 : 0;
             return (
               <li key={category} className="px-6 py-5">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-medium text-gray-900">
                     {category}
                   </p>
-                  <p className="text-sm text-gray-500">
-                    <span className="font-medium text-gray-700">
-                      R${" "}
-                      {spent.toLocaleString("pt-BR", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>{" "}
-                    / R${" "}
-                    {limit.toLocaleString("pt-BR", {
+                  <p className="text-sm text-gray-700 font-semibold">
+                    R${" "}
+                    {spent.toLocaleString("pt-BR", {
                       minimumFractionDigits: 2,
                     })}
                   </p>
                 </div>
-                <ProgressBar value={spent} max={limit} />
+                <ProgressBar value={spent} max={totalExpenses} />
                 <div className="text-right mt-1">
-                  <p
-                    className={`text-xs font-medium ${
-                      remaining >= 0 ? "text-gray-500" : "text-red-500"
-                    }`}
-                  >
-                    {remaining >= 0
-                      ? `Restam R$ ${remaining.toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                        })}`
-                      : `Excedeu R$ ${Math.abs(remaining).toLocaleString(
-                          "pt-BR",
-                          { minimumFractionDigits: 2 }
-                        )}`}
+                  <p className="text-xs text-gray-500">
+                    {percentageOfTotal.toFixed(1)}% do total de despesas
                   </p>
                 </div>
               </li>
