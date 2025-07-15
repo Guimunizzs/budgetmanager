@@ -40,3 +40,5 @@ const CategoryPieChart = ({ data }: CategoryPieChartProps) => {
     </ResponsiveContainer>
   );
 };
+
+export default CategoryPieChart;

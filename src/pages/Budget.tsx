@@ -1,5 +1,7 @@
 import { useTransactions } from "../hooks/useTransaction";
+import CategoryPieChart from "../components/CategoryPieChart";
 
+// Componente para a barra de progresso (reutilizável)
 const ProgressBar = ({ value, max }: { value: number; max: number }) => {
   const percentage = max > 0 ? (value / max) * 100 : 0;
 
@@ -27,7 +29,7 @@ const Budget = () => {
 
   const balance = totalIncome - totalExpenses;
 
-  // 2. Calcular os gastos totais por categoria (lógica que já tínhamos)
+  // 2. Calcular os gastos totais por categoria
   const expensesByCategory = transactions
     .filter((t) => t.type === "expense")
     .reduce((acc, transaction) => {
@@ -43,6 +45,12 @@ const Budget = () => {
   const sortedCategories = Object.entries(expensesByCategory).sort(
     ([, a], [, b]) => b - a
   );
+
+  // 3. Preparar os dados para o gráfico de pizza
+  const chartData = sortedCategories.map(([name, value]) => ({
+    name,
+    value,
+  }));
 
   if (loading) {
     return <div>Carregando...</div>;
@@ -61,9 +69,8 @@ const Budget = () => {
         </p>
       </div>
 
-      {/* 3. Cards com a visão geral */}
+      {/* Cards com a visão geral */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Card Receitas */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-sm font-medium text-gray-500">
             Total de Receitas
@@ -73,7 +80,6 @@ const Budget = () => {
             {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
           </p>
         </div>
-        {/* Card Despesas */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-sm font-medium text-gray-500">
             Total de Despesas
@@ -85,7 +91,6 @@ const Budget = () => {
             })}
           </p>
         </div>
-        {/* Card Saldo */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-sm font-medium text-gray-500">Saldo Atual</h3>
           <p
@@ -98,40 +103,57 @@ const Budget = () => {
         </div>
       </div>
 
-      {/* 4. Lista de gastos por categoria */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-800">
-            Gastos por Categoria
+      {/* Nova seção para o gráfico e a lista */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        {/* Coluna do Gráfico */}
+        <div className="lg:col-span-2 bg-white shadow rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Distribuição de Gastos
           </h2>
+          {chartData.length > 0 ? (
+            <CategoryPieChart data={chartData} />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              Sem dados de despesas para exibir.
+            </div>
+          )}
         </div>
-        <ul className="divide-y divide-gray-200">
-          {sortedCategories.map(([category, spent]) => {
-            const percentageOfTotal =
-              totalExpenses > 0 ? (spent / totalExpenses) * 100 : 0;
-            return (
-              <li key={category} className="px-6 py-5">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-gray-900">
-                    {category}
-                  </p>
-                  <p className="text-sm text-gray-700 font-semibold">
-                    R${" "}
-                    {spent.toLocaleString("pt-BR", {
-                      minimumFractionDigits: 2,
-                    })}
-                  </p>
-                </div>
-                <ProgressBar value={spent} max={totalExpenses} />
-                <div className="text-right mt-1">
-                  <p className="text-xs text-gray-500">
-                    {percentageOfTotal.toFixed(1)}% do total de despesas
-                  </p>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+
+        {/* Coluna da Lista de Gastos */}
+        <div className="lg:col-span-3 bg-white shadow rounded-lg">
+          <div className="px-6 py-4 border-b">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Gastos por Categoria
+            </h2>
+          </div>
+          <ul className="divide-y divide-gray-200">
+            {sortedCategories.map(([category, spent]) => {
+              const percentageOfTotal =
+                totalExpenses > 0 ? (spent / totalExpenses) * 100 : 0;
+              return (
+                <li key={category} className="px-6 py-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-gray-900">
+                      {category}
+                    </p>
+                    <p className="text-sm text-gray-700 font-semibold">
+                      R${" "}
+                      {spent.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </p>
+                  </div>
+                  <ProgressBar value={spent} max={totalExpenses} />
+                  <div className="text-right mt-1">
+                    <p className="text-xs text-gray-500">
+                      {percentageOfTotal.toFixed(1)}% do total de despesas
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
     </div>
   );
