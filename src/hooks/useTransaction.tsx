@@ -1,19 +1,30 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { transactionService } from "../services/api";
 import type { Transaction, CreateTransactionDate } from "../types/types";
+import { useAuth } from "../context/AuthContext";
 
 export const useTransactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null); // Track qual está sendo deletado
+  const { currentUser } = useAuth();
 
   // Carregar transações
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
+    if (!currentUser) {
+      setTransactions([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     try {
-      setLoading(true);
-      const data = await transactionService.getAll();
-      console.log("📊 Transações carregadas:", data);
+      const data = await transactionService.getAll(currentUser.uid);
+      console.log(
+        `📊 Transações carregadas para o usuário ${currentUser.uid}:`,
+        data
+      );
       setTransactions(data);
       setError(null);
     } catch (err) {
@@ -23,19 +34,27 @@ export const useTransactions = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
 
   useEffect(() => {
     fetchTransactions();
   }, []);
 
   // Adicionar transação
-  const addTransaction = async (transaction: Omit<Transaction, "id">) => {
+  const addTransaction = async (
+    transaction: Omit<Transaction, "id" | "userId">
+  ) => {
+    if (!currentUser)
+      throw new Error("Usuário não autenticado para adicionar transação.");
+
     try {
       console.log("➕ Adicionando transação:", transaction);
 
       // Primeiro, adiciona no servidor
-      const newTransaction = await transactionService.create(transaction);
+      const newTransaction = await transactionService.create(
+        transaction,
+        currentUser.uid
+      );
       console.log("✅ Transação criada no servidor:", newTransaction);
 
       // Depois, atualiza o estado local
@@ -59,11 +78,15 @@ export const useTransactions = () => {
     id: string,
     transactionData: CreateTransactionDate
   ) => {
+    if (!currentUser)
+      throw new Error("Usuário não autenticado para atualizar transação.");
+
     try {
       console.log(`🔄 Hook: Atualizando transação ID: ${id}`);
       const updatedTransaction = await transactionService.update(
         id,
-        transactionData
+        transactionData,
+        currentUser.uid
       );
 
       // Atualiza a lista de transações no estado local de forma otimista
@@ -88,13 +111,16 @@ export const useTransactions = () => {
 
   // Remover transação - VERSÃO MAIS ROBUSTA
   const removeTransaction = async (id: string) => {
+    if (!currentUser)
+      throw new Error("Usuário não autenticado para remover transação.");
+
     try {
       console.log("🗑️ Iniciando remoção da transação:", id);
       setIsDeleting(id);
 
       // OPÇÃO 1: Remove do servidor primeiro, depois do estado local
       try {
-        await transactionService.delete(id);
+        await transactionService.delete(id, currentUser.uid);
         console.log("✅ Transação removida do servidor");
 
         // Sucesso no servidor = remove do estado local
@@ -127,10 +153,6 @@ export const useTransactions = () => {
       setIsDeleting(null);
     }
   };
-
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
 
   return {
     transactions,

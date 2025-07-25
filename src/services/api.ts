@@ -40,9 +40,9 @@ api.interceptors.response.use(
 // CRUD para Transações
 export const transactionService = {
   // Listar todas as transações
-  getAll: async (): Promise<Transaction[]> => {
+  getAll: async (userId: string): Promise<Transaction[]> => {
     try {
-      const response = await api.get("/");
+      const response = await api.get(`/?userId=${userId}`);
 
       // Suas validações de array continuam perfeitas aqui...
       if (!Array.isArray(response.data)) {
@@ -58,10 +58,12 @@ export const transactionService = {
 
   // Criar nova transação
   create: async (
-    transaction: Omit<Transaction, "id">
+    transaction: Omit<Transaction, "id" | "userId">,
+    userId: string
   ): Promise<Transaction> => {
     const newTransaction = {
       ...transaction,
+      userId: userId,
       id: crypto.randomUUID(),
     };
 
@@ -72,61 +74,30 @@ export const transactionService = {
   // Atualizar transação (ainda não implementamos, mas seria assim)
   update: async (
     id: string,
-    // Usar CreateTransactionDate para garantir que todos os campos sejam enviados
-    transaction: CreateTransactionDate
+    transaction: CreateTransactionDate,
+    userId: string
   ): Promise<Transaction> => {
-    try {
-      const transactionToUpdate: Transaction = {
-        ...transaction,
-        id: id,
-      };
-
-      console.log(`🌐 PUT /?id=${id}`, transactionToUpdate);
-
-      // 2. ENVIA O OBJETO COMPLETO
-      const response = await api.put<Transaction[]>(
-        `/?id=${id}`,
-        transactionToUpdate
+    // Apenas atualiza se o ID da transação E o userId baterem
+    const response = await api.put<Transaction[]>(
+      `/?id=${id}&userId=${userId}`,
+      transaction
+    );
+    if (response.data.length === 0)
+      throw new Error(
+        "Falha ao atualizar: Transação não encontrada ou pertence a outro usuário."
       );
-
-      // 3. Trata a resposta da API
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        const updatedTransaction = response.data[0];
-        console.log(
-          "✅ Update bem-sucedido, API retornou:",
-          updatedTransaction
-        );
-
-        // Garante que o ID retornado seja o correto
-        if (!updatedTransaction.id) {
-          return { ...updatedTransaction, id: id };
-        }
-        return updatedTransaction;
-      }
-
-      // Fallback caso a API retorne algo inesperado
-      console.warn(
-        "⚠️ Update retornou uma resposta inesperada:",
-        response.data
-      );
-      return transactionToUpdate; // Retorna o objeto que tentamos enviar
-    } catch (error) {
-      console.error(`❌ Erro no update para o ID ${id}:`, error);
-      throw error;
-    }
+    return response.data[0];
   },
 
   // Deletar transação
-  delete: async (id: string): Promise<void> => {
-    try {
-      console.log("🗑️ Tentando deletar transação ID:", id);
-
-      const response = await api.delete(`/?id=${id}`);
-
-      console.log("✅ Delete bem-sucedido:", response.status);
-    } catch (error) {
-      console.error("❌ Erro ao deletar transação:", error);
-      throw error;
+  delete: async (id: string, userId: string): Promise<void> => {
+    // Apenas deleta se o ID da transação E o userId baterem
+    const response = await api.delete<any>(`/?id=${id}&userId=${userId}`);
+    // A API da Sheet2API retorna { "deleted": 1 } em sucesso.
+    if (response.data.deleted === 0) {
+      throw new Error(
+        "Falha ao deletar: Transação não encontrada ou pertence a outro usuário."
+      );
     }
   },
 
