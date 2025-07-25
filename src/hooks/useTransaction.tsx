@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { transactionService } from "../services/api";
 import type { Transaction, CreateTransactionDate } from "../types/types";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 export const useTransactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -60,16 +61,13 @@ export const useTransactions = () => {
       // Depois, atualiza o estado local
       setTransactions((prev) => {
         const updated = [newTransaction, ...prev];
-        console.log("🔄 Estado local atualizado:", updated.length);
+        toast.success("Transação adicionada com sucesso!");
         return updated;
       });
 
       return newTransaction;
     } catch (err) {
-      console.error("❌ Erro ao adicionar:", err);
-      setError(
-        err instanceof Error ? err.message : "Erro ao adicionar transação"
-      );
+      toast.error("Erro ao adicionar transação.");
       throw err;
     }
   };
@@ -82,27 +80,23 @@ export const useTransactions = () => {
       throw new Error("Usuário não autenticado para atualizar transação.");
 
     try {
-      console.log(`🔄 Hook: Atualizando transação ID: ${id}`);
       const updatedTransaction = await transactionService.update(
         id,
         transactionData,
         currentUser.uid
       );
-
-      // Atualiza a lista de transações no estado local de forma otimista
       setTransactions((prev) =>
         prev.map((t) => (t.id === id ? updatedTransaction : t))
       );
-      console.log("✅ Hook: Estado local atualizado com a transação editada.");
+      toast.success("Transação atualizada com sucesso!");
 
       // Opcional: Forçar um refetch para garantir a sincronia total com o backend
       // setTimeout(() => fetchTransactions(true), 1500);
 
       return updatedTransaction;
     } catch (err) {
-      console.error("❌ Hook: Erro ao atualizar transação:", err);
-      setError(
-        err instanceof Error ? err.message : "Erro ao atualizar a transação"
+      toast.error(
+        "Erro ao atualizar transação. Verifique os dados e tente novamente."
       );
       // Re-lança o erro para que o componente do formulário possa saber que falhou
       throw err;
@@ -115,26 +109,23 @@ export const useTransactions = () => {
       throw new Error("Usuário não autenticado para remover transação.");
 
     try {
-      console.log("🗑️ Iniciando remoção da transação:", id);
       setIsDeleting(id);
 
       // OPÇÃO 1: Remove do servidor primeiro, depois do estado local
       try {
         await transactionService.delete(id, currentUser.uid);
-        console.log("✅ Transação removida do servidor");
+        toast.success("Transação removida com sucesso.");
 
         // Sucesso no servidor = remove do estado local
         setTransactions((prev) => {
           const updated = prev.filter((t) => t.id !== id);
-          console.log(
-            "🔄 Estado local atualizado após remoção:",
-            updated.length
-          );
+          toast.success("Estado local atualizado após remoção.");
           return updated;
         });
       } catch (serverError) {
-        console.warn("⚠️ Falha no servidor, mas tentando remover localmente");
-
+        toast.error(
+          "Erro ao remover transação no servidor. Tentando remover localmente..."
+        );
         // Se falhar no servidor, remove localmente e recarrega depois
         setTransactions((prev) => prev.filter((t) => t.id !== id));
 
@@ -145,9 +136,8 @@ export const useTransactions = () => {
         }, 2000);
       }
     } catch (err) {
-      console.error("❌ Erro ao remover:", err);
-      setError(
-        err instanceof Error ? err.message : "Erro ao remover transação"
+      toast.error(
+        "Erro ao remover transação. Verifique os dados e tente novamente."
       );
     } finally {
       setIsDeleting(null);

@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 const Header = () => {
   const { currentUser, logout } = useAuth();
@@ -8,15 +9,16 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      toast.success("Você foi desconectado com sucesso!");
       navigate("/login");
     } catch (error) {
-      console.error("Erro ao desconectar:", error);
+      toast.error("Erro ao desconectar.");
     }
   };
 
   return (
     <div className=" bg-gray-800 text-white">
-      <header className=" bg-blue-500 text-white p-4">
+      <header className=" bg-gray-800 text-white p-4">
         <h1 className="text-2xl font-bold">Budget Manager</h1>
         <nav className="flex justify-between items-center mt-2">
           <ul className="flex  space-x-4">
