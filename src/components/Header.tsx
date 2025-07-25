@@ -1,25 +1,50 @@
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
 const Header = () => {
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Erro ao desconectar:", error);
+    }
+  };
+
   return (
-    <div className="">
-      <header className="bg-blue-500 text-white p-4">
+    <div className=" bg-gray-800 text-white">
+      <header className=" bg-blue-500 text-white p-4">
         <h1 className="text-2xl font-bold">Budget Manager</h1>
-        <nav>
-          <ul className="flex space-x-4">
+        <nav className="flex justify-between items-center mt-2">
+          <ul className="flex  space-x-4">
             <li>
-              <a href="/dashboard" className="hover:underline">
+              <Link to="/dashboard" className="hover:underline">
                 Dashboard
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/transactions" className="hover:underline">
+              <Link to="/transactions" className="hover:underline">
                 Transactions
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/budget" className="hover:underline">
+              <Link to="/budget" className="hover:underline">
                 Budget
-              </a>
+              </Link>
             </li>
+          </ul>
+          <ul>
+            {currentUser && (
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Sair
+              </button>
+            )}
           </ul>
         </nav>
       </header>
