@@ -1,4 +1,6 @@
-import { useTransactions } from "../hooks/useTransaction";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
+import useTransactionStore from "../store/transactionStore";
 import CategoryPieChart from "../components/CategoryPieChart";
 
 // Componente para a barra de progresso (reutilizável)
@@ -16,7 +18,15 @@ const ProgressBar = ({ value, max }: { value: number; max: number }) => {
 };
 
 const Budget = () => {
-  const { transactions, loading, error } = useTransactions();
+  const { currentUser } = useAuth();
+  const { transactions, loading, error, fetchTransactions } =
+    useTransactionStore();
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchTransactions(currentUser.uid);
+    }
+  }, [currentUser, fetchTransactions]);
 
   // 1. Calcular os totais gerais
   const totalIncome = transactions
