@@ -1,10 +1,20 @@
-import { useTransactions } from "../hooks/useTransaction";
 import type { Transaction } from "../types/types";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
+import useTransactionStore from "../store/transactionStore";
 
 const Dashboard = () => {
-  const { transactions, loading, error, removeTransaction } = useTransactions();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const { transactions, loading, error, fetchTransactions, deleteTransaction } =
+    useTransactionStore();
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchTransactions(currentUser.uid);
+    }
+  }, [currentUser, fetchTransactions]);
 
   if (loading) {
     return (
@@ -51,6 +61,12 @@ const Dashboard = () => {
   const handleAddTransaction = async () => {
     // Navegar para a página de adição de transação
     navigate("/transactions");
+  };
+
+  const handleRemove = async (id: string) => {
+    if (currentUser) {
+      await deleteTransaction(id, currentUser.uid);
+    }
   };
 
   // Calcular totais
@@ -416,7 +432,7 @@ const Dashboard = () => {
                           </svg>
                         </button>
                         <button
-                          onClick={() => removeTransaction(transaction.id)}
+                          onClick={() => handleRemove(transaction.id)}
                           className="ml-4 inline-flex items-center p-1 border border-transparent rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
                         >
                           <svg
