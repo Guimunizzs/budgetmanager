@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useTransactionStore from "../store/transactionStore";
 import { useAuth } from "../context/AuthContext";
 import type {
@@ -8,12 +8,10 @@ import type {
 } from "../types/types";
 import toast from "react-hot-toast";
 
-// Defina uma interface para as props que este componente recebe
 interface TransactionFormProps {
-  transactionId?: string; // O '?' torna a prop opcional, já que o form também é usado para criar (sem id)
+  transactionId?: string;
 }
 
-// Altere a primeira linha do seu componente para aceitar e desestruturar as props
 const TransactionForm = ({ transactionId }: TransactionFormProps) => {
   const navigate = useNavigate();
 
