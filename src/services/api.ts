@@ -9,9 +9,6 @@ const api = axios.create({
   timeout: 10000, // 10 segundos
 });
 
-// Debug
-console.log("🔧 API Base URL:", import.meta.env.VITE_SHEET2API_URL);
-
 // Interceptor para tratar erros globalmente
 api.interceptors.response.use(
   (response) => {
@@ -39,12 +36,10 @@ api.interceptors.response.use(
 
 // CRUD para Transações
 export const transactionService = {
-  // Listar todas as transações
   getAll: async (userId: string): Promise<Transaction[]> => {
     try {
       const response = await api.get(`/?userId=${userId}`);
 
-      // Suas validações de array continuam perfeitas aqui...
       if (!Array.isArray(response.data)) {
         // ...
         return [];
@@ -56,7 +51,6 @@ export const transactionService = {
     }
   },
 
-  // Criar nova transação
   create: async (
     transaction: Omit<Transaction, "id" | "userId">,
     userId: string
@@ -71,29 +65,37 @@ export const transactionService = {
     return response.data;
   },
 
-  // Atualizar transação (ainda não implementamos, mas seria assim)
   update: async (
     id: string,
     transaction: CreateTransactionDate,
     userId: string
   ): Promise<Transaction> => {
-    // Apenas atualiza se o ID da transação E o userId baterem
+    // ✅ 2. ENVIAR O OBJETO COMPLETO NO UPDATE
+    // Isso evita que a API apague o campo 'id' da sua planilha.
+    const fullTransactionData = {
+      ...transaction, // Os dados do formulário (descrição, amount, etc.)
+      id: id, // O ID existente da transação que estamos editando
+      userId: userId, // O ID do usuário
+    };
+
+    // Enviamos o objeto completo no corpo da requisição PUT.
     const response = await api.put<Transaction[]>(
       `/?id=${id}&userId=${userId}`,
-      transaction
+      fullTransactionData
     );
+
     if (response.data.length === 0)
       throw new Error(
         "Falha ao atualizar: Transação não encontrada ou pertence a outro usuário."
       );
+
+    // A API retorna a linha atualizada, que podemos retornar com segurança.
     return response.data[0];
   },
 
-  // Deletar transação
   delete: async (id: string, userId: string): Promise<void> => {
-    // Apenas deleta se o ID da transação E o userId baterem
     const response = await api.delete<any>(`/?id=${id}&userId=${userId}`);
-    // A API da Sheet2API retorna { "deleted": 1 } em sucesso.
+
     if (response.data.deleted === 0) {
       throw new Error(
         "Falha ao deletar: Transação não encontrada ou pertence a outro usuário."

@@ -1,20 +1,20 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useTransactions } from "../hooks/useTransaction";
-import { transactionService } from "../services/api";
-
+import { useNavigate, useParams } from "react-router-dom";
+import useTransactionStore from "../store/transactionStore";
+import { useAuth } from "../context/AuthContext";
 import type {
   TransactionFormValues,
   CreateTransactionDate,
 } from "../types/types";
+import toast from "react-hot-toast";
 
-interface TransactionFormProps {
-  transactionId?: string;
-}
-
-const TransactionForm = ({ transactionId }: TransactionFormProps) => {
-  const { addTransaction, updateTransaction } = useTransactions();
+const TransactionForm = () => {
+  const { id: transactionId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
+
+  const { addTransaction, updateTransaction, transactions } =
+    useTransactionStore();
+  const { currentUser } = useAuth();
 
   const [formData, setFormData] = useState<TransactionFormValues>({
     description: "",
@@ -29,34 +29,30 @@ const TransactionForm = ({ transactionId }: TransactionFormProps) => {
 
   useEffect(() => {
     if (isEditMode) {
-      const fetchTransactionData = async () => {
-        try {
-          console.log(
-            `🔍 Buscando dados para a transação ID: ${transactionId}`
-          );
-          const data = await transactionService.getById(transactionId);
-          console.log("✅ Dados recebidos para edição:", data);
-
-          // Preenche o formulário com os dados recebidos
-          setFormData({
-            description: data.description,
-            amount: String(data.amount), // Converte o número para string para o input
-            date: new Date(data.date).toISOString().split("T")[0], // Formata a data corretamente
-            category: data.category,
-            type: data.type,
-          });
-        } catch (error) {
-          console.error("❌ Erro ao buscar dados da transação:", error);
-          alert("Não foi possível carregar os dados para edição.");
-          navigate("/dashboard");
-        }
-      };
-      fetchTransactionData();
+      const existingTransaction = transactions.find(
+        (t) => t.id === transactionId
+      );
+      if (existingTransaction) {
+        setFormData({
+          description: existingTransaction.description,
+          amount: String(existingTransaction.amount),
+          date: new Date(existingTransaction.date).toISOString().split("T")[0],
+          category: existingTransaction.category,
+          type: existingTransaction.type,
+        });
+      } else {
+        toast.error("Transação não encontrada para edição.");
+        navigate("/dashboard");
+      }
     }
-  }, [transactionId, isEditMode, navigate]);
+  }, [transactionId, isEditMode, navigate, transactions]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentUser) {
+      toast.error("Você precisa estar logado para realizar esta ação.");
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -66,33 +62,27 @@ const TransactionForm = ({ transactionId }: TransactionFormProps) => {
         date: formData.date,
         category: formData.category,
         type: formData.type,
+        userId: currentUser.uid,
       };
 
-      if (isEditMode) {
-        // 🚀 MODO EDIÇÃO: Chama a função de update
-        console.log(
-          "🔄 Atualizando transação:",
+      if (isEditMode && transactionId) {
+        await updateTransaction(
           transactionId,
-          transactionData
+          transactionData,
+          currentUser.uid
         );
-        await updateTransaction(transactionId, transactionData);
-        console.log("✅ Transação atualizada com sucesso!");
       } else {
-        // ➕ MODO CRIAÇÃO: Chama a função de adicionar
-        console.log("➕ Adicionando nova transação:", transactionData);
-        await addTransaction(transactionData);
-        console.log("✅ Nova transação adicionada com sucesso!");
+        // ✅ MUDANÇA CRÍTICA: Espere a operação terminar
+        await addTransaction(transactionData, currentUser.uid);
       }
 
-      // Navega para o dashboard em caso de sucesso
+      // ✅ A NAVEGAÇÃO SÓ ACONTECE DEPOIS QUE TUDO ACABOU
       navigate("/dashboard", { replace: true });
     } catch (error) {
-      // O catch agora lida com erros de ambas as operações
       console.error(
-        `❌ Erro ao ${isEditMode ? "atualizar" : "adicionar"} transação:`,
+        `Erro ao ${isEditMode ? "atualizar" : "adicionar"} transação:`,
         error
       );
-      alert(`Erro ao ${isEditMode ? "atualizar" : "adicionar"} a transação!`);
     } finally {
       setIsSubmitting(false);
     }
@@ -110,6 +100,9 @@ const TransactionForm = ({ transactionId }: TransactionFormProps) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        {isEditMode ? "Editar Transação" : "Adicionar Nova Transação"}
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Tipo de Transação */}
         <div>
