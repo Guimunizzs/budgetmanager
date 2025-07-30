@@ -11,10 +11,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div>
       <Header />
-      <main>
-        {/* 2. Renderize os filhos aqui, em vez do Outlet */}
-        {children}
-      </main>
+      <main>{children}</main>
       <Footer />
     </div>
   );

@@ -6,10 +6,9 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000, // 10 segundos
+  timeout: 10000,
 });
 
-// Interceptor para tratar erros globalmente
 api.interceptors.response.use(
   (response) => {
     console.log("✅ Response status:", response.status);
@@ -34,17 +33,31 @@ api.interceptors.response.use(
   }
 );
 
-// CRUD para Transações
 export const transactionService = {
   getAll: async (userId: string): Promise<Transaction[]> => {
     try {
       const response = await api.get(`/?userId=${userId}`);
 
       if (!Array.isArray(response.data)) {
-        // ...
         return [];
       }
-      return response.data;
+
+      const transformedData = response.data.map((item: any) => {
+        const amountAsString = String(item.amount || "0");
+
+        const withoutThousandsSeparator = amountAsString.replace(/\./g, "");
+
+        const withDecimalPoint = withoutThousandsSeparator.replace(",", ".");
+
+        const numericAmount = parseFloat(withDecimalPoint);
+
+        return {
+          ...item,
+          amount: isNaN(numericAmount) ? 0 : numericAmount,
+        };
+      });
+
+      return transformedData;
     } catch (error) {
       console.error("💥 Erro ao buscar transações:", error);
       throw error;
@@ -70,15 +83,12 @@ export const transactionService = {
     transaction: CreateTransactionDate,
     userId: string
   ): Promise<Transaction> => {
-    // ✅ 2. ENVIAR O OBJETO COMPLETO NO UPDATE
-    // Isso evita que a API apague o campo 'id' da sua planilha.
     const fullTransactionData = {
-      ...transaction, // Os dados do formulário (descrição, amount, etc.)
-      id: id, // O ID existente da transação que estamos editando
-      userId: userId, // O ID do usuário
+      ...transaction,
+      id: id,
+      userId: userId,
     };
 
-    // Enviamos o objeto completo no corpo da requisição PUT.
     const response = await api.put<Transaction[]>(
       `/?id=${id}&userId=${userId}`,
       fullTransactionData
@@ -89,7 +99,6 @@ export const transactionService = {
         "Falha ao atualizar: Transação não encontrada ou pertence a outro usuário."
       );
 
-    // A API retorna a linha atualizada, que podemos retornar com segurança.
     return response.data[0];
   },
 

@@ -28,7 +28,6 @@ const Budget = () => {
     }
   }, [currentUser, fetchTransactions]);
 
-  // 1. Calcular os totais gerais
   const totalIncome = transactions
     .filter((t) => t.type === "income")
     .reduce((acc, t) => acc + t.amount, 0);
@@ -39,7 +38,6 @@ const Budget = () => {
 
   const balance = totalIncome - totalExpenses;
 
-  // 2. Calcular os gastos totais por categoria
   const expensesByCategory = transactions
     .filter((t) => t.type === "expense")
     .reduce((acc, transaction) => {
@@ -51,12 +49,10 @@ const Budget = () => {
       return acc;
     }, {} as Record<string, number>);
 
-  // Ordenar categorias da mais gasta para a menos gasta
   const sortedCategories = Object.entries(expensesByCategory).sort(
     ([, a], [, b]) => b - a
   );
 
-  // 3. Preparar os dados para o gráfico de pizza
   const chartData = sortedCategories.map(([name, value]) => ({
     name,
     value,
@@ -79,7 +75,6 @@ const Budget = () => {
         </p>
       </div>
 
-      {/* Cards com a visão geral */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-sm font-medium text-gray-500">
@@ -113,9 +108,7 @@ const Budget = () => {
         </div>
       </div>
 
-      {/* Nova seção para o gráfico e a lista */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        {/* Coluna do Gráfico */}
         <div className="lg:col-span-2 bg-white shadow rounded-lg p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             Distribuição de Gastos
@@ -129,7 +122,6 @@ const Budget = () => {
           )}
         </div>
 
-        {/* Coluna da Lista de Gastos */}
         <div className="lg:col-span-3 bg-white shadow rounded-lg">
           <div className="px-6 py-4 border-b">
             <h2 className="text-lg font-semibold text-gray-800">

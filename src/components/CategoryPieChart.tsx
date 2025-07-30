@@ -13,7 +13,6 @@ interface CategoryPieChartProps {
 
 const CategoryPieChart = ({ data }: CategoryPieChartProps) => {
   return (
-    // ResponsiveContainer permite que o gráfico se ajuste ao tamanho do contêiner pai
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
         <Pie
@@ -30,7 +29,7 @@ const CategoryPieChart = ({ data }: CategoryPieChartProps) => {
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
-        {/* Tooltip mostra os detalhes ao passar o mouse sobre uma fatia */}
+
         <Tooltip
           formatter={(value: number) =>
             `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`

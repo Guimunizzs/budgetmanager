@@ -72,11 +72,10 @@ const TransactionForm = () => {
           currentUser.uid
         );
       } else {
-        // ✅ MUDANÇA CRÍTICA: Espere a operação terminar
+        
         await addTransaction(transactionData, currentUser.uid);
       }
 
-      // ✅ A NAVEGAÇÃO SÓ ACONTECE DEPOIS QUE TUDO ACABOU
       navigate("/dashboard", { replace: true });
     } catch (error) {
       console.error(
@@ -104,7 +103,6 @@ const TransactionForm = () => {
         {isEditMode ? "Editar Transação" : "Adicionar Nova Transação"}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Tipo de Transação */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
             Tipo de Transação *
@@ -169,7 +167,6 @@ const TransactionForm = () => {
           </div>
         </div>
 
-        {/* Descrição */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Descrição *
@@ -185,7 +182,6 @@ const TransactionForm = () => {
           />
         </div>
 
-        {/* Valor */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Valor (R$) *
@@ -203,7 +199,6 @@ const TransactionForm = () => {
           />
         </div>
 
-        {/* Data */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Data *
@@ -218,7 +213,6 @@ const TransactionForm = () => {
           />
         </div>
 
-        {/* Categoria */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Categoria *
@@ -255,7 +249,6 @@ const TransactionForm = () => {
           </select>
         </div>
 
-        {/* Botões */}
         <div className="flex justify-end space-x-4 pt-6">
           <button
             type="button"
@@ -266,11 +259,9 @@ const TransactionForm = () => {
           </button>
           <button
             type="submit"
-            // ✅ Desabilita o botão durante o envio
             disabled={isSubmitting}
             className="px-6 py-3 ... disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {/* ✅ Mostra o spinner e o texto dinâmico */}
             {isSubmitting ? (
               <>
                 <svg
