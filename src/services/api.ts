@@ -70,14 +70,26 @@ export const transactionService = {
     transaction: CreateTransactionDate,
     userId: string
   ): Promise<Transaction> => {
+    // ✅ 2. ENVIAR O OBJETO COMPLETO NO UPDATE
+    // Isso evita que a API apague o campo 'id' da sua planilha.
+    const fullTransactionData = {
+      ...transaction, // Os dados do formulário (descrição, amount, etc.)
+      id: id, // O ID existente da transação que estamos editando
+      userId: userId, // O ID do usuário
+    };
+
+    // Enviamos o objeto completo no corpo da requisição PUT.
     const response = await api.put<Transaction[]>(
       `/?id=${id}&userId=${userId}`,
-      transaction
+      fullTransactionData
     );
+
     if (response.data.length === 0)
       throw new Error(
         "Falha ao atualizar: Transação não encontrada ou pertence a outro usuário."
       );
+
+    // A API retorna a linha atualizada, que podemos retornar com segurança.
     return response.data[0];
   },
 

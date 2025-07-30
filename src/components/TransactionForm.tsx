@@ -29,7 +29,6 @@ const TransactionForm = () => {
 
   useEffect(() => {
     if (isEditMode) {
-      // Pega a transação do estado global, sem nova chamada de API!
       const existingTransaction = transactions.find(
         (t) => t.id === transactionId
       );
@@ -58,26 +57,28 @@ const TransactionForm = () => {
 
     try {
       const transactionData: CreateTransactionDate = {
-        userId: currentUser.uid,
         description: formData.description,
         amount: parseFloat(formData.amount),
         date: formData.date,
         category: formData.category,
         type: formData.type,
+        userId: currentUser.uid,
       };
 
-      if (isEditMode) {
+      if (isEditMode && transactionId) {
         await updateTransaction(
           transactionId,
           transactionData,
           currentUser.uid
         );
       } else {
+        // ✅ MUDANÇA CRÍTICA: Espere a operação terminar
         await addTransaction(transactionData, currentUser.uid);
       }
+
+      // ✅ A NAVEGAÇÃO SÓ ACONTECE DEPOIS QUE TUDO ACABOU
       navigate("/dashboard", { replace: true });
     } catch (error) {
-      // O toast de erro já é tratado dentro da store
       console.error(
         `Erro ao ${isEditMode ? "atualizar" : "adicionar"} transação:`,
         error

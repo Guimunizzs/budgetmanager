@@ -55,11 +55,9 @@ const Dashboard = () => {
     );
   }
 
-  // 🔥 PROTEÇÃO CRÍTICA: Garantir que transactions é sempre um array
   const safeTransactions = Array.isArray(transactions) ? transactions : [];
 
   const handleAddTransaction = async () => {
-    // Navegar para a página de adição de transação
     navigate("/transactions");
   };
 
@@ -69,7 +67,6 @@ const Dashboard = () => {
     }
   };
 
-  // Calcular totais
   const totalIncome = safeTransactions
     .filter((t) => t.type === "income")
     .reduce((sum, t) => sum + t.amount, 0);
@@ -82,7 +79,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
@@ -118,9 +114,7 @@ const Dashboard = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Cards de Resumo */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {/* Total de Transações */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -153,7 +147,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Receitas */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -189,7 +182,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Despesas */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -225,7 +217,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Saldo */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -266,7 +257,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Aviso de erro da API */}
         {!Array.isArray(transactions) && (
           <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex">
@@ -296,7 +286,6 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Lista de Transações */}
         <div className="bg-white shadow rounded-lg">
           <div className="px-6 py-4 border-b border-gray-200">
             <h3 className="text-lg font-medium text-gray-900">
