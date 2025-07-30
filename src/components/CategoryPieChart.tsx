@@ -25,7 +25,7 @@ const CategoryPieChart = ({ data }: CategoryPieChartProps) => {
           dataKey="value"
           nameKey="name"
         >
-          {data.map((entry, index) => (
+          {data.map((_entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
