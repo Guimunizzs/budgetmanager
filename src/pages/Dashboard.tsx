@@ -81,46 +81,49 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:py-6 space-y-4 sm:space-y-0">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 Dashboard Financeiro
               </h1>
               <p className="text-sm text-gray-600 mt-1">
                 Gerencie suas finanças de forma inteligente
               </p>
             </div>
-            <button
-              onClick={handleAddTransaction}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-            >
-              <svg
-                className="h-5 w-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex justify-end">
+              <button
+                onClick={handleAddTransaction}
+                className="inline-flex items-center px-3 py-2 sm:px-4 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Adicionar Transação
-            </button>
+                <svg
+                  className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span className="hidden sm:inline">Adicionar Transação</span>
+                <span className="sm:hidden">Adicionar</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
           <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
+            <div className="p-4 lg:p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <svg
-                    className="h-6 w-6 text-gray-400"
+                    className="h-5 w-5 lg:h-6 lg:w-6 text-gray-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -133,12 +136,12 @@ const Dashboard = () => {
                     />
                   </svg>
                 </div>
-                <div className="ml-5 w-0 flex-1">
+                <div className="ml-3 lg:ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
+                    <dt className="text-xs lg:text-sm font-medium text-gray-500 truncate">
                       Total de Transações
                     </dt>
-                    <dd className="text-lg font-medium text-gray-900">
+                    <dd className="text-base lg:text-lg font-medium text-gray-900">
                       {safeTransactions.length}
                     </dd>
                   </dl>
@@ -148,11 +151,11 @@ const Dashboard = () => {
           </div>
 
           <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
+            <div className="p-4 lg:p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <svg
-                    className="h-6 w-6 text-green-400"
+                    className="h-5 w-5 lg:h-6 lg:w-6 text-green-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -165,12 +168,12 @@ const Dashboard = () => {
                     />
                   </svg>
                 </div>
-                <div className="ml-5 w-0 flex-1">
+                <div className="ml-3 lg:ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
+                    <dt className="text-xs lg:text-sm font-medium text-gray-500 truncate">
                       Receitas
                     </dt>
-                    <dd className="text-lg font-medium text-green-600">
+                    <dd className="text-sm lg:text-lg font-medium text-green-600">
                       + R${" "}
                       {totalIncome.toLocaleString("pt-BR", {
                         minimumFractionDigits: 2,
@@ -183,11 +186,11 @@ const Dashboard = () => {
           </div>
 
           <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
+            <div className="p-4 lg:p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <svg
-                    className="h-6 w-6 text-red-400"
+                    className="h-5 w-5 lg:h-6 lg:w-6 text-red-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -200,12 +203,12 @@ const Dashboard = () => {
                     />
                   </svg>
                 </div>
-                <div className="ml-5 w-0 flex-1">
+                <div className="ml-3 lg:ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
+                    <dt className="text-xs lg:text-sm font-medium text-gray-500 truncate">
                       Despesas
                     </dt>
-                    <dd className="text-lg font-medium text-red-600">
+                    <dd className="text-sm lg:text-lg font-medium text-red-600">
                       - R${" "}
                       {totalExpense.toLocaleString("pt-BR", {
                         minimumFractionDigits: 2,
@@ -218,11 +221,11 @@ const Dashboard = () => {
           </div>
 
           <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
+            <div className="p-4 lg:p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <svg
-                    className="h-6 w-6 text-blue-400"
+                    className="h-5 w-5 lg:h-6 lg:w-6 text-blue-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -235,13 +238,13 @@ const Dashboard = () => {
                     />
                   </svg>
                 </div>
-                <div className="ml-5 w-0 flex-1">
+                <div className="ml-3 lg:ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
+                    <dt className="text-xs lg:text-sm font-medium text-gray-500 truncate">
                       Saldo
                     </dt>
                     <dd
-                      className={`text-lg font-medium ${
+                      className={`text-sm lg:text-lg font-medium ${
                         balance >= 0 ? "text-green-600" : "text-red-600"
                       }`}
                     >
@@ -348,24 +351,24 @@ const Dashboard = () => {
                 {safeTransactions.map((transaction: Transaction) => (
                   <li
                     key={transaction.id}
-                    className="px-6 py-4 hover:bg-gray-50 transition-colors duration-150"
+                    className="px-4 py-4 lg:px-6 hover:bg-gray-50 transition-colors duration-150"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
+                      <div className="flex items-start sm:items-center">
                         <div
-                          className={`flex-shrink-0 h-2 w-2 rounded-full ${
+                          className={`flex-shrink-0 h-2 w-2 rounded-full mt-2 sm:mt-0 ${
                             transaction.type === "income"
                               ? "bg-green-400"
                               : "bg-red-400"
                           }`}
                         ></div>
-                        <div className="ml-4">
-                          <div className="flex items-center">
-                            <p className="text-sm font-medium text-gray-900">
+                        <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center">
+                            <p className="text-sm font-medium text-gray-900 truncate">
                               {transaction.description}
                             </p>
                             <span
-                              className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              className={`mt-1 sm:mt-0 sm:ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium w-fit ${
                                 transaction.type === "income"
                                   ? "bg-green-100 text-green-800"
                                   : "bg-red-100 text-red-800"
@@ -376,10 +379,12 @@ const Dashboard = () => {
                                 : "Despesa"}
                             </span>
                           </div>
-                          <div className="mt-1 flex items-center text-sm text-gray-500">
-                            <span>{transaction.category}</span>
-                            <span className="mx-2">•</span>
-                            <time>
+                          <div className="mt-1 flex flex-col sm:flex-row sm:items-center text-sm text-gray-500 space-y-1 sm:space-y-0">
+                            <span className="truncate">
+                              {transaction.category}
+                            </span>
+                            <span className="hidden sm:inline mx-2">•</span>
+                            <time className="flex-shrink-0">
                               {new Date(transaction.date).toLocaleDateString(
                                 "pt-BR"
                               )}
@@ -387,9 +392,9 @@ const Dashboard = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center">
+                      <div className="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-4">
                         <span
-                          className={`text-lg font-semibold ${
+                          className={`text-base sm:text-lg font-semibold ${
                             transaction.type === "income"
                               ? "text-green-600"
                               : "text-red-600"
@@ -400,44 +405,48 @@ const Dashboard = () => {
                             minimumFractionDigits: 2,
                           })}
                         </span>
-                        <button
-                          onClick={() =>
-                            navigate(`/transactions/edit/${transaction.id}`)
-                          }
-                          className="ml-4 inline-flex items-center p-1 border border-transparent rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() =>
+                              navigate(`/transactions/edit/${transaction.id}`)
+                            }
+                            className="inline-flex items-center p-1.5 sm:p-1 border border-transparent rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                            title="Editar transação"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 5.232z"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => handleRemove(transaction.id)}
-                          className="ml-4 inline-flex items-center p-1 border border-transparent rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 5.232z"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleRemove(transaction.id)}
+                            className="inline-flex items-center p-1.5 sm:p-1 border border-transparent rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
+                            title="Excluir transação"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button>
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </li>
